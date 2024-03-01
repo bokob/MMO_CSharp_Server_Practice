@@ -4,33 +4,33 @@ using System.Threading.Tasks;
 
 namespace ServerCore
 {
-    // C# 완벽 가이드라는 책에서 나온 예제 (메모리 배리어)
     class Program
     {
-        int _answer;
-        bool _complete;
-
-        void A()
+        static int number = 0;
+        static void Thread_1()
         {
-            _answer = 123;
-            Thread.MemoryBarrier(); // Barrier 1
-            _complete = true;
-            Thread.MemoryBarrier(); // Barrier 2
+            for (int i = 0; i < 10000; i++)
+            {
+                int afterValue = Interlocked.Increment(ref number);
+            }
         }
 
-        void B()
+        static void Thread_2()
         {
-            Thread.MemoryBarrier(); // Barrier 3
-            if(_complete )
-            {
-                Thread.MemoryBarrier(); // Barrier 4
-                Console.WriteLine(_answer);
-            }
+            for (int i = 0; i < 10000; i++)
+                Interlocked.Decrement(ref number);
         }
 
         static void Main(string[] args)
         {
+            Task t1 = new Task(Thread_1);
+            Task t2 = new Task(Thread_2);
+            t1.Start();
+            t2.Start();
 
+            Task.WaitAll(t1, t2);
+
+            Console.WriteLine(number);
         }
     }
 }
