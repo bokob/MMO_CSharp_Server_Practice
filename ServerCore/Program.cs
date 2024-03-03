@@ -4,8 +4,14 @@ using System.Threading.Tasks;
 
 namespace ServerCore
 {
+    class FastLock
+    {
+        // Session은 0, User는 1로 enum으로 Define 해놓는다.
+        int id;
+    }
     class SessionManager
     {
+        FastLock l;
         static object _lock = new object();
 
         public static void TestSession()
@@ -26,6 +32,7 @@ namespace ServerCore
 
     class UserManager
     {
+        FastLock l;
         static object _lock = new object();
 
         public static void Test()
