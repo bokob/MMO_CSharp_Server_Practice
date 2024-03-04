@@ -6,39 +6,44 @@ namespace ServerCore
 {
     class Program
     {
-        static int _num = 0;
-        static Mutex _lock = new Mutex();
+        // 락 구현 방법
+        // 1. 근성
+        // 2. 양보
+        // 3. 갑질
+        static object _lock = new object();
+        static SpinLock _lock2 = new SpinLock();
 
-        static void Thread_1()
+        class Reward
         {
-            for(int i=0;i<10000;i++)
-            {
-                _lock.WaitOne();
-                _num++;
-                _lock.ReleaseMutex();
-            }
+
         }
 
-        static void Thread_2()
+        static ReaderWriterLockSlim _lock3 = new ReaderWriterLockSlim();
+
+        // 99.999%
+        static Reward GetRewardById(int Id)
         {
-            for(int i=0;i<10000;i++)
-            {
-                _lock.WaitOne();
-                _num--;
-                _lock.ReleaseMutex();
-            }
+            _lock3.EnterReadLock();
+
+            _lock3.ExitReadLock();
+
+            return null;
+        }
+
+        // 0.001%
+        void AddReward(Reward reward)
+        {
+            _lock3.EnterWriteLock();
+
+            _lock3.ExitWriteLock();
         }
 
         static void Main(string[] args)
         {
-            Task t1 = new Task(Thread_1);
-            Task t2 = new Task(Thread_2);
-            t1.Start();
-            t2.Start();
+            lock(_lock)
+            {
 
-            Task.WaitAll(t1, t2);
-
-            Console.WriteLine(_num);
+            }
         }
     }
 }
